@@ -1,73 +1,55 @@
 import React from 'react';
 
+
+const API_KEY = "991ec47f9c2fd0f3b3aa8195f730946f";
+// const API_URL = `http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${API_KEY}&units=metric`;
+
+
+
 export default class Forecast extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
         error: null,
         isLoaded: false,
-        items: [],
-        latlong: ''
+        source: [],
+        location: '',
+        weatherLoc: '',
+        wind: []
       };
     }
 
-    getGeodata() {
-        if (navigator.geolocation) {
-            // Request the current position
-            // If successful, call getPosSuccess; On error, call getPosErr
-            navigator.geolocation.getCurrentPosition(this.getPosSuccess, this.getPosErr);
-        } else {
-            alert('geolocation not available?! What year is this?');
-            // IP address or prompt for city?
-        }
-        
+    pullData = async () => {
+      const apiCall =  await fetch(`http://api.openweathermap.org/data/2.5/weather?q=Brisbane,Australia&appid=991ec47f9c2fd0f3b3aa8195f730946f&units=metric`)
+      const data = await apiCall.json();
+      this.setState({
+        source: data,
+        isLoaded: true,
+        weatherLoc: data.name,
+        weather: data.weather,
+        wind: data.wind
+      })
     }
-
-    getPosSuccess(pos) {
-        // Get the coordinates and accuracy properties from the returned object
-        var geoLat = pos.coords.latitude.toFixed(5);
-        var geoLng = pos.coords.longitude.toFixed(5);
-        var geoAcc = pos.coords.accuracy.toFixed(1);
-        
-
-    }
-
-    getPosErr(err) {
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            alert("User denied the request for Geolocation.");
-            break;
-          case err.POSITION_UNAVAILABLE:
-            alert("Location information is unavailable.");
-            break;
-          case err.TIMEOUT:
-            alert("The request to get user location timed out.");
-            break;
-          default:
-            alert("An unknown error occurred.");
-        }
-      }
 
   
     componentDidMount() {
-      this.getGeodata();
+      this.pullData();
     }
   
     render() {
-      const { error, isLoaded, items } = this.state;
+      const { error, isLoaded, weatherLoc, weather, wind } = this.state;
       if (error) {
         return <div>Error: {error.message}</div>;
       } else if (!isLoaded) {
         return <div>Loading...</div>;
       } else {
+        
         return (
-          <ul>
-            {/* {items.map(item => (
-              <li key={item.name}>
-                {item.name} {item.price}
-              </li>
-            ))} */}
-          </ul>
+          <div> 
+          {weatherLoc} 
+          </div>
+          
+          
         );
       }
     }
